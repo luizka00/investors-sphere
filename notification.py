@@ -17,12 +17,13 @@ def scrape_table(url): #scraping the table
     web_content= f.read().decode('utf-8')
     tabela = HTMLTableParser()
     tabela.feed(web_content)
+    return tabela.tables[0]
    
 
 
 def send_email(subject, body, mailing_list):
-    from_email = 'strefainwestorow69@gmail.com'
-    from_password = 'Polska123'
+    from_email = 'strefainwestora69@02.pl'
+    from_password = 'fexqen-vicqem-0wetVo'
     
     msg = MIMEMultipart()
     msg['From'] = from_email
@@ -31,7 +32,7 @@ def send_email(subject, body, mailing_list):
     
     msg.attach(MIMEText(body, 'plain'))
     
-    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+    with smtplib.SMTP('poczta.o2.pl', 465) as server:
         server.starttls()
         server.login(from_email, from_password)
         text = msg.as_string()
@@ -42,24 +43,13 @@ def check_for_changes(url, state_file, notification_emails):
     current_state = scrape_table(url)
     
     if os.path.exists(state_file):
-        with open(state_file, 'r') as file:
-            previous_state = file.read()
+        previous_state = state_file
     else:
         previous_state = ''
     
     if current_state != previous_state:
-        with open(state_file, 'w') as file:
-            file.write(current_state)
-        
-        diff = difflib.unified_diff(
-            previous_state.splitlines(), 
-            current_state.splitlines(), 
-            fromfile='previous', 
-            tofile='current', 
-            lineterm=''
-        )
-        diff_text = '\n'.join(list(diff))
-        send_email('Na Strefie Inwestora dropnęła nowa rekomendacja', diff_text, notification_emails)
+        current_state= previous_state
+        send_email('strefa inwestora','Na Strefie Inwestora dropnęła nowa rekomendacja', notification_emails)
         print('Change detected and email sent.')
     else:
         print('No changes detected.')
@@ -70,4 +60,4 @@ notification_emails = ['luizasemeniuk@gmail.com']  # List of recipient email add
 
 while True:
     check_for_changes(url, state_file, notification_emails)
-    time.sleep(60) 
+    time.sleep(5)
