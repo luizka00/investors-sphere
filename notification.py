@@ -70,4 +70,4 @@ notification_emails = ['luizasemeniuk@gmail.com']  # List of recipient email add
 
 while True:
     check_for_changes(url, state_file, notification_emails)
-    time.sleep(3)
+    time.sleep(60)
