@@ -5,20 +5,21 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import difflib
-import os
 
 def scrape_table(url): #scraping the table
     #making request to the website
     request = urllib.request.Request(url=url)
     f = urllib.request.urlopen(request)
-
     #reading contents of the website
     web_content= f.read().decode('utf-8')
-    tabela = HTMLTableParser()
-    tabela.feed(web_content)
-    return tabela.tables[0]
-   
+    parser = HTMLTableParser()
+    parser.feed(web_content)
+    tables = parser.tables
+    # Assuming you want the first table found on the page
+    if tables:
+        return tables[0]  # Return the first table found
+    else:
+        return None
 
 
 def send_email(subject, body, mailing_list):
@@ -41,18 +42,27 @@ def send_email(subject, body, mailing_list):
 # Function to check for changes
 def check_for_changes(url, state_file, notification_emails):
     current_state = scrape_table(url)
-    
-    if os.path.exists(state_file):
-        previous_state = state_file
+    if current_state:
+        # Read previous state from file
+        try:
+            with open(state_file, 'r') as file:
+                previous_state = file.read()
+        except FileNotFoundError:
+            previous_state = ''
+        
+        # Compare current state with previous state
+        if str(current_state) != previous_state:
+            # Update state file with current state
+            with open(state_file, 'w') as file:
+                file.write(str(current_state))
+            
+            # Send email notification
+            send_email('Table Change Detected', 'A change has been detected in the table.', notification_emails)
+            print('Change detected and email sent.')
+        else:
+            print('No changes detected.')
     else:
-        previous_state = ''
-    
-    if current_state != previous_state:
-        current_state= previous_state
-        send_email('strefa inwestora','Na Strefie Inwestora dropnęła nowa rekomendacja', notification_emails)
-        print('Change detected and email sent.')
-    else:
-        print('No changes detected.')
+        print('Error: Unable to scrape table.')
 
 url = 'https://strefainwestorow.pl/rekomendacje/lista-rekomendacji/wszystkie'
 state_file= 'table.txt'
@@ -60,4 +70,4 @@ notification_emails = ['luizasemeniuk@gmail.com']  # List of recipient email add
 
 while True:
     check_for_changes(url, state_file, notification_emails)
-    time.sleep(5)
+    time.sleep(60)
