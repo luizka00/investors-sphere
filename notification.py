@@ -17,7 +17,7 @@ def scrape_table(url): #scraping the table
     web_content= f.read().decode('utf-8')
     tabela = HTMLTableParser()
     tabela.feed(web_content)
-    return tabela.tables[0]
+    print(tabela.tables[0])
 
 def send_email(subject, body, mailing_list):
     from_email = 'strefainwestorow69@gmail.com'
@@ -64,9 +64,9 @@ def check_for_changes(url, state_file, notification_emails):
         print('No changes detected.')
 
 url = 'https://strefainwestorow.pl/rekomendacje/lista-rekomendacji/wszystkie'
+state_file= "1,2,3"
 notification_emails = ['luizasemeniuk@gmail.com']  # List of recipient email addresses
-
 while True:
-    check_for_changes(url,notification_emails)
+    check_for_changes(url, state_file, notification_emails)
     time.sleep(60) 
 
