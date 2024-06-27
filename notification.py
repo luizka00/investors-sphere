@@ -57,7 +57,7 @@ def check_for_changes(url, state_file, notification_emails):
                 file.write(str(current_state))
             
             # Send email notification
-            send_email('Table Change Detected', 'A change has been detected in the table.', notification_emails)
+            send_email('New recommendation', 'You have a new stock recommendation', notification_emails)
             print('Change detected and email sent.')
         else:
             print('No changes detected.')
